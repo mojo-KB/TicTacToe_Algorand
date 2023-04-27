@@ -143,9 +143,9 @@ _ = st.button('Play Action', on_click=play_action,
 
 st.title("Game state")
 
-for i in range(3):
-    cols = st.columns(3)
-    for j in range(3):
+for i in range(6):
+    cols = st.columns(7)
+    for j in range(7):
         idx = i * 3 + j
         if st.session_state.game_state[idx] == '-':
             cols[j].info('-')
