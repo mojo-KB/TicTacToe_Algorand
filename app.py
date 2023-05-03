@@ -17,7 +17,7 @@ if "player_turn" not in st.session_state:
     st.session_state.player_turn = "X"
 
 if "game_state" not in st.session_state:
-    st.session_state.game_state = ['-'] * 9
+    st.session_state.game_state = ['-'] * 42
 
 if "x_state" not in st.session_state:
     st.session_state.x_state = 0
@@ -26,7 +26,7 @@ if "o_state" not in st.session_state:
     st.session_state.o_state = 0
 
 if "game_state" not in st.session_state:
-    st.session_state.game_state = ['-'] * 9
+    st.session_state.game_state = ['-'] * 42
 
 if "game_engine" not in st.session_state:
     st.session_state.game_engine = GameEngineService(app_creator_pk=acc_pk,
@@ -45,6 +45,11 @@ if "is_app_deployed" not in st.session_state:
 if "is_game_started" not in st.session_state:
     st.session_state.is_game_started = False
 
+
+st.title("Project: Connect 4 in Algorand")
+st.write("Team: ")
+
+
 st.title("Addresses")
 st.write(f"app_creator: {acc_address}")
 st.write(f"player_x: {player_x_address}")
@@ -59,18 +64,21 @@ def deploy_application():
     if st.session_state.is_app_deployed:
         return
 
-    app_deployment_txn_log = st.session_state.game_engine.deploy_application(client)
+    app_deployment_txn_log = st.session_state.game_engine.deploy_application(
+        client)
     st.session_state.submitted_transactions.append(app_deployment_txn_log)
     st.session_state.is_app_deployed = True
 
 
 st.title("Step 1: App deployment")
-st.write("In this step we deploy the Tic-Tac-Toe Stateful Smart Contract to the Algorand TestNetwork")
+st.write("In this step we deploy the Game Stateful Smart Contract to the Algorand TestNetwork")
 
 if st.session_state.is_app_deployed:
-    st.success(f"The app is deployed on TestNet with the following app_id: {st.session_state.game_engine.app_id}")
+    st.success(
+        f"The app is deployed on TestNet with the following app_id: {st.session_state.game_engine.app_id}")
 else:
-    st.error(f"The app is not deployed! Press the button below to deploy the application.")
+    st.error(
+        f"The app is not deployed! Press the button below to deploy the application.")
     _ = st.button("Deploy App", on_click=deploy_application)
 
 # Step 2: Start of the game
@@ -146,17 +154,19 @@ st.title("Game state")
 for i in range(6):
     cols = st.columns(7)
     for j in range(7):
-        idx = i * 3 + j
+        idx = i * 7 + j
         if st.session_state.game_state[idx] == '-':
-            cols[j].info('-')
+            cols[j].info('-' + str(idx) + '-')
         elif st.session_state.game_state[idx] == 'X':
             cols[j].warning('X')
         else:
             cols[j].success('O')
 
 st.subheader("Binary states")
-st.write(f"x_state: {st.session_state.x_state} == {to_binary(st.session_state.x_state)}")
-st.write(f"o_state: {st.session_state.o_state} == {to_binary(st.session_state.o_state)}")
+st.write(
+    f"x_state: {st.session_state.x_state} == {to_binary(st.session_state.x_state)}")
+st.write(
+    f"o_state: {st.session_state.o_state} == {to_binary(st.session_state.o_state)}")
 
 # Step 4:
 
@@ -165,7 +175,8 @@ st.title("Step 4: Withdraw funds")
 
 def check_game_status():
     if st.session_state.is_game_started:
-        game_status = get_game_status(indexer, app_id=st.session_state.game_engine.app_id)
+        game_status = get_game_status(
+            indexer, app_id=st.session_state.game_engine.app_id)
         st.session_state.game_status = game_status
 
 
@@ -176,22 +187,28 @@ _ = st.button("Check the game status", on_click=check_game_status)
 def withdraw_funds(winner):
     if winner is None:
         try:
-            fund_escrow_txn = st.session_state.game_engine.fund_escrow(client=client)
+            fund_escrow_txn = st.session_state.game_engine.fund_escrow(
+                client=client)
             st.session_state.submitted_transactions.append(fund_escrow_txn)
 
-            txn_description = st.session_state.game_engine.tie_money_refund(client)
+            txn_description = st.session_state.game_engine.tie_money_refund(
+                client)
             st.session_state.submitted_transactions.append(txn_description)
         except:
-            st.session_state.submitted_transactions.append("Rejected transaction. Unsuccessful withdrawal.")
+            st.session_state.submitted_transactions.append(
+                "Rejected transaction. Unsuccessful withdrawal.")
     else:
         try:
-            fund_escrow_txn = st.session_state.game_engine.fund_escrow(client=client)
+            fund_escrow_txn = st.session_state.game_engine.fund_escrow(
+                client=client)
             st.session_state.submitted_transactions.append(fund_escrow_txn)
 
-            txn_description = st.session_state.game_engine.win_money_refund(client, player_id=winner)
+            txn_description = st.session_state.game_engine.win_money_refund(
+                client, player_id=winner)
             st.session_state.submitted_transactions.append(txn_description)
         except:
-            st.session_state.submitted_transactions.append("Rejected transaction. Unsuccessful withdrawal.")
+            st.session_state.submitted_transactions.append(
+                "Rejected transaction. Unsuccessful withdrawal.")
 
 
 if st.session_state.game_status == 0:
